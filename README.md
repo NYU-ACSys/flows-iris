@@ -1,2 +1,3 @@
-# flows-iris
-Formalization of the flow framework in Iris
+# Flows in Iris
+
+Formalization of the flow framework in the separation logic Iris.
