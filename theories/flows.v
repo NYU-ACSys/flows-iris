@@ -38,11 +38,7 @@ Module FlowGraph.
     Definition disjoint H1 H2 := uniq (nodes H1 ++ nodes H2).
 
     Definition flowEqn G :=
-      let nodes_G := nodes G in
-      let flow_G := flow G in
-      let edges_G := edges G in
-      let inf_G := inflow G in
-      forall n, n \in nodes_G -> flow_G n = inf_G n + \big[+%M/0]_(n' <- nodes_G) (flow_G n' |> edges_G n' n).
+      forall n, n \in nodes G -> flow G n = inflow G n + \big[+%M/0]_(n' <- nodes G) (flow G n' |> edges G n' n).
                       
     Structure flowGraph :=
       FlowGraph {
