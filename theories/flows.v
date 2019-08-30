@@ -1,5 +1,4 @@
-Require Import util.
-Require Import ccm.
+Require Import util ccm.
 From mathcomp Require Import ssreflect ssrbool ssrfun eqtype ssrnat seq path.
 From mathcomp Require Import div fintype choice tuple finfun bigop finset.
 
@@ -7,7 +6,7 @@ Set Implicit Arguments.
 
 (** Flow graphs *)
 Module FlowGraph.
-  Section FlowDomain.
+  Section Definitions.
     Variable M : Type.
 
     Variable idx : M.
@@ -73,7 +72,7 @@ Module FlowGraph.
       else None.
 
     Lemma gcomp_flowEqn (G1 G2 G12 : graph) :
-      (Some G12) = gcomp G1 G2 -> flowEqn G12.
+      Some G12 = gcomp G1 G2 -> flowEqn G12.
     Proof.
     Admitted.
 
@@ -84,5 +83,5 @@ Module FlowGraph.
         do G12 <- gcomp H1 H2 ;
         FlowGraph (gcomp_flowEqn H1 H2 G12) G12.*)
         
-  End FlowDomain.
+  End Definitions.
 End FlowGraph.
