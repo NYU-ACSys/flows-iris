@@ -81,6 +81,10 @@ Section PervasiveCCMs.
   Lemma addnCPinv : partial_inverse addn subn.
   Proof.
     move=> x y.
+    rewrite addKn.
+    exact.
+  Qed.
+  (*
     rewrite addnC.
     pose (leqnn x).
     rewrite <-addnBA.
@@ -98,7 +102,7 @@ Section PervasiveCCMs.
     admit.
     - exact.
   Admitted.
-  
+  *)
   Canonical addn_ccm := CanLaw addn_comoid addnCC addnCPinv.
   
 End PervasiveCCMs.
