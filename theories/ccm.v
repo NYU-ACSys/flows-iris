@@ -14,18 +14,18 @@ Module CCM.
     Definition cancellative (op: T -> T -> T) :=
       forall x y z, op x y = op x z -> y = z.
 
-    Definition partial_inverse (op: T -> T -> T) (op_inv: T -> T -> T) :=
-      forall x y, op_inv (op x y) x = y.
+    Definition partial_sub (op_add: T -> T -> T) (op_sub: T -> T -> T) :=
+      forall x y, op_sub (op_add x y) x = y.
     
     Structure ccm :=
       CanLaw {
-          can_operator: com_law idm;
-          can_operator_inv: T -> T -> T;
-          _ : cancellative can_operator;
-          _ : partial_inverse can_operator can_operator_inv;
+          can_add_operator: com_law idm;
+          can_sub_operator: T -> T -> T;
+          _ : cancellative can_add_operator;
+          _ : partial_sub can_add_operator can_sub_operator;
         }.
 
-    Local Coercion can_operator : ccm >-> com_law.
+    Local Coercion can_add_operator : ccm >-> com_law.
 
     Let op_id (op1 op2 : T -> T -> T) := phant_id op1 op2.
     
@@ -37,7 +37,7 @@ Module CCM.
 
 
   Module Import Exports.
-    Coercion can_operator : ccm >-> com_law.
+    Coercion can_add_operator : ccm >-> com_law.
     Notation "[ 'ccm' 'of' f ]" :=
       (@clone_ccm _ _ f _ _ id id _ id)
         (at level 0, format "[ 'ccm' 'of' f ]") : form_scope.
@@ -52,7 +52,7 @@ Module CCM.
       Lemma canmC : cancellative can.
       Proof. by case can. Qed.
 
-      Lemma canmPInv : partial_inverse can (can_operator_inv can).
+      Lemma canmPInv : partial_sub can (can_sub_operator can).
       Proof. by case can. Qed.
 
     End Theory.
@@ -78,32 +78,14 @@ Section PervasiveCCMs.
     exact.
   Qed.
 
-  Lemma addnCPinv : partial_inverse addn subn.
+  Lemma addnCPsub : partial_sub addn subn.
   Proof.
     move=> x y.
     rewrite addKn.
     exact.
   Qed.
-  (*
-    rewrite addnC.
-    pose (leqnn x).
-    rewrite <-addnBA.
-    pose (subn_eq0 x x).
-    apply Coq.Bool.Bool.eq_bool_prop_elim in e.
-    apply iff_and in e.
-    elim e.
-    intro h1.
-    intro h2.
-    rewrite i in h2.
-    unfold Bool.Is_true in h2.
-    pose (h3 := h2 I).
-    simpl h3.
-    rewrite <-eqnE in h3.
-    admit.
-    - exact.
-  Admitted.
-  *)
-  Canonical addn_ccm := CanLaw addn_comoid addnCC addnCPinv.
+   
+  Canonical addn_ccm := CanLaw addn_comoid addnCC addnCPsub.
   
 End PervasiveCCMs.
 

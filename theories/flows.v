@@ -7,7 +7,7 @@ Set Implicit Arguments.
 (** Flow graphs *)
 Module FlowGraph.
   Section Definitions.
-    Variable M : Type.
+    Variable M : eqType.
 
     Variable idx : M.
     Local Notation "0" := idx.
@@ -16,7 +16,7 @@ Module FlowGraph.
 
     Local Notation "+%M" := op (at level 0).
     Local Notation "x + y" := (op x y).
-    Local Notation "x - y" := (CCM.can_operator_inv op x y).
+    Local Notation "x - y" := (CCM.can_sub_operator op x y).
     
 
     Definition E := M -> M.
@@ -37,13 +37,24 @@ Module FlowGraph.
       
     Definition disjoint H1 H2 := uniq (nodes H1 ++ nodes H2).
 
+    Definition flowEqnn G n :=
+      flow G n == inflow G n + \big[+%M/0]_(n' <- nodes G) (flow G n' |> edges G n' n).
+                                
     Definition flowEqn G :=
-      forall n, n \in nodes G -> flow G n = inflow G n + \big[+%M/0]_(n' <- nodes G) (flow G n' |> edges G n' n).
-                      
+      all (flowEqnn G) (nodes G).
+
+    Definition flowEqnP G :=
+      {in (nodes G), forall n, flowEqnn G n}.
+
+    Lemma flowEqnPP G : reflect (flowEqnP G) (flowEqn G).
+    Proof.
+      apply allP.
+    Qed.
+    
     Structure flowGraph :=
       FlowGraph {
           fgraph: graph;
-          _ : flowEqn fgraph;
+          _ : flowEqnP fgraph;
         }.
 
     Coercion fgraph : flowGraph >-> graph.
@@ -55,6 +66,8 @@ Module FlowGraph.
         if n \in s1 then f1 n
         else if n \in s2 then f2 n
              else z.
+
+    Check FlowGraph.
     
     Definition gcomp (G1 G2 : graph) : option graph :=
       if disjoint G1 G2 then
@@ -64,20 +77,19 @@ Module FlowGraph.
         let flow12 := fcomp nodes1 (flow G1) nodes2 (flow G2) 0 in
         let edges12 := fcomp nodes1 (edges G1) nodes2 (edges G2) (fun _ _ => 0) in
         let G12 := Graph nodes12 edges12 flow12 in
-        Some G12
+        if flowEqn G12 then Some G12 else None
       else None.
 
-    Lemma gcomp_flowEqn (G1 G2 G12 : graph) :
-      Some G12 = gcomp G1 G2 -> flowEqn G12.
+    Lemma gcomp_correct (G1 G2 G12 : graph) :
+      Some G12 = gcomp G1 G2 -> flowEqnP G12.
     Proof.
     Admitted.
 
-    
-    (* Definition fcomp (H1o : fgAlg) (H2o : fgAlg) : fgAlg :=
+    (*Definition fgcomp (H1o : fgAlg) (H2o : fgAlg) : fgAlg :=
       do H1 <- H1o ;
         do H2 <- H2o ;
         do G12 <- gcomp H1 H2 ;
-        FlowGraph (gcomp_flowEqn H1 H2 G12) G12.*)
+        Some (@FlowGraph G12 (gcomp_correct H1 H2 _)).*)
         
   End Definitions.
 End FlowGraph.
